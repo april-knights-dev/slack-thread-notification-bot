@@ -148,6 +148,7 @@ class SlackBot:
             "auto_expand": auto_expand,
             "threshold": threshold,
         }
+        self.last_updated_channel_id = channel_id
         self.save_settings()
 
         client.chat_postMessage(channel=channel_id, text="スレッド自動展開の設定を更新しました。")
