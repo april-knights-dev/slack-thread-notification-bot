@@ -8,12 +8,16 @@ class SlackBot:
         self.app = app
         self.load_settings()
         self.thread_state = ThreadState("thread_state.json")
+        self.last_updated_channel_id = None
 
     def load_settings(self):
         self.thread_settings = settings.load_thread_settings()
 
     def save_settings(self):
-        settings.save_thread_settings(self.thread_settings)
+        if self.last_updated_channel_id:
+            channel_settings = {
+                self.last_updated_channel_id: self.thread_settings[self.last_updated_channel_id]}
+            settings.save_thread_settings(channel_settings)
 
     def handle_app_mention(self, body, say):
         user = body["event"]["user"]
@@ -31,7 +35,8 @@ class SlackBot:
                 # チャンネルに投稿されたメッセージのタイムスタンプを取得（例として、現在のメッセージのタイムスタンプを使用）
                 last_broadcast_ts = event["ts"]
                 # カウントをリセットし、最後にチャンネルに投稿されたメッセージのタイムスタンプを更新
-                self.thread_state.reset_message_count(thread_ts, last_broadcast_ts)
+                self.thread_state.reset_message_count(
+                    thread_ts, last_broadcast_ts)
             else:
                 # メッセージ数をインクリメント
                 self.thread_state.increment_message_count(thread_ts)
